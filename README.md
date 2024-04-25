@@ -1,7 +1,7 @@
 ### Benchmark
 
 ```bash
-✗ forge test --gas-report
+✗ forge test --isolate --gas-report
 ```
 
 | Function Name                       | min  | avg  | median | max  | # calls |
