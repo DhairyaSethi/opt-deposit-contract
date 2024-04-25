@@ -6,7 +6,7 @@
 
 | Function Name                       | min  | avg  | median | max  | # calls |
 | ----------------------------------- | ---- | ---- | ------ | ---- | ------- |
-| zerosFromPointerWithoutTheExtraStop | 507  | 647  | 507    | 5007 | 32      |
+| zerosFromPointerWithoutTheExtraStop | 507  | 647  | 507    | 507  | 32      |
 | zerosFromPointer                    | 534  | 534  | 534    | 534  | 32      |
 | zerosFromStorage                    | 2478 | 2478 | 2478   | 2478 | 32      |
 | zerosFromSwitch                     | 328  | 684  | 684    | 1041 | 32      |
