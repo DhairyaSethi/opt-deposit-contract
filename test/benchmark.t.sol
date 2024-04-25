@@ -60,6 +60,16 @@ contract ZeroHashMerkleTreeTest is Test {
         console.log("readFromSwitchSum", readFromSwitchSum);
     }
 
+    function testCannotCallPointers(bytes memory arbritraryCallData) public {
+        (bool success, bytes memory ret) = pointer.call(arbritraryCallData);
+        assertEq(success, true);
+        assertEq(ret.length, 0);
+
+        (success, ret) = pointerWithoutStop.call(arbritraryCallData);
+        assertEq(success, true);
+        assertEq(ret.length, 0);
+    }
+
     // taken from solmate: https://github.com/transmissions11/solmate/blob/main/src/utils/SSTORE2.sol
     // does not pad the initial 00 (STOP) opcode for keccack hashed merkle trees where
     // the first zero root is bytes32(0) which naturally lends the initial STOP opcode
