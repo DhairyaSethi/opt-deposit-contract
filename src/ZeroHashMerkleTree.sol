@@ -18,7 +18,7 @@ contract ZeroHashMerkleTree {
     }
     function zerosFromStorage(
         uint i
-    ) external view returns (bytes32 ret, uint gas) {
+    ) public view returns (bytes32 ret, uint gas) {
         uint gasBefore = gasleft();
         ret = zeroHashes[i];
         gas = gasBefore - gasleft();
@@ -217,5 +217,50 @@ contract ZeroHashMerkleTree {
 
     function concactZeroHashes() external view returns (bytes memory ret) {
         ret = abi.encodePacked(zeroHashes);
+    }
+
+    uint constant MAX_DEPOSIT_COUNT = 2 ** DEPOSIT_CONTRACT_TREE_DEPTH - 1;
+    bytes32[DEPOSIT_CONTRACT_TREE_DEPTH] internal _branch;
+    uint depositCount;
+
+    function getRoot() public view virtual returns (bytes32) {
+        bytes32 node;
+        uint size = depositCount;
+
+        for (uint height = 0; height < DEPOSIT_CONTRACT_TREE_DEPTH; height++) {
+            if (((size >> height) & 1) == 1)
+                node = keccak256(abi.encodePacked(_branch[height], node));
+            else node = keccak256(abi.encodePacked(node, _zeros(height)));
+        }
+        return node;
+    }
+
+    function _addLeaf(bytes32 leaf) internal {
+        bytes32 node = leaf;
+
+        if (depositCount >= 2 ** DEPOSIT_CONTRACT_TREE_DEPTH - 1) {
+            assembly {
+                mstore(0, 0xef5ccf66) // 'MerkleTreeFull()'
+                revert(0x1c, 0x04)
+            }
+        }
+
+        uint256 size = ++depositCount;
+        for (
+            uint256 height = 0;
+            height < DEPOSIT_CONTRACT_TREE_DEPTH;
+            height++
+        ) {
+            if (((size >> height) & 1) == 1) {
+                _branch[height] = node;
+                return;
+            }
+            node = keccak256(abi.encodePacked(_branch[height], node));
+        }
+        assert(false);
+    }
+
+    function _zeros(uint i) internal view returns (bytes32 ret) {
+        (ret, ) = zerosFromStorage(i);
     }
 }
