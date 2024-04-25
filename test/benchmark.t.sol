@@ -7,6 +7,8 @@ import {SSTORE2} from "./../lib/solady/src/utils/SSTORE2.sol";
 
 contract ZeroHashMerkleTreeTest is Test {
     ZeroHashMerkleTree public base;
+    address pointer;
+    address pointerWithoutStop;
 
     function setUp() public {
         bytes32[] memory zeroHashes = new bytes32[](32);
@@ -16,8 +18,8 @@ contract ZeroHashMerkleTreeTest is Test {
             );
 
         bytes memory data = abi.encodePacked(zeroHashes);
-        address pointer = SSTORE2.write(data);
-        address pointerWithoutStop = write(data);
+        pointer = SSTORE2.write(data);
+        pointerWithoutStop = write(data);
 
         base = new ZeroHashMerkleTree(pointer, pointerWithoutStop);
     }
@@ -30,15 +32,15 @@ contract ZeroHashMerkleTreeTest is Test {
         for (uint i; i < 32; i++) {
             uint gas = gasleft();
             bytes32 value = bytes32(
-                SSTORE2.read(base.pointer(), i * 32, (i + 1) * 32)
+                SSTORE2.read(pointer, i * 32, (i + 1) * 32)
             );
             sstore2ReadSum += gas - gasleft();
 
             gas = gasleft();
-            // bytes32 readPointer = base.zerosFromPointer(i);
             bytes32 readPointer = base.zerosFromPointerWithoutTheExtraStop(i);
             readPointerSum += gas - gasleft();
             assertEq(readPointer, value);
+            assertEq(base.zerosFromPointer(i), value);
 
             gas = gasleft();
             bytes32 readFromStorage = base.zerosFromStorage(i);
@@ -61,15 +63,15 @@ contract ZeroHashMerkleTreeTest is Test {
     // taken from solmate: https://github.com/transmissions11/solmate/blob/main/src/utils/SSTORE2.sol
     // does not pad the initial 00 (STOP) opcode for keccack hashed merkle trees where
     // the first zero root is bytes32(0) which naturally lends the initial STOP opcode
-    function write(bytes memory data) internal returns (address pointer) {
+    function write(bytes memory data) internal returns (address pointer_) {
         bytes memory runtimeCode = abi.encodePacked(data);
         bytes memory creationCode = abi.encodePacked(
             hex"60_0B_59_81_38_03_80_92_59_39_F3",
             runtimeCode
         );
         assembly {
-            pointer := create(0, add(creationCode, 32), mload(creationCode))
+            pointer_ := create(0, add(creationCode, 32), mload(creationCode))
         }
-        require(pointer != address(0), "DEPLOYMENT_FAILED");
+        require(pointer_ != address(0), "DEPLOYMENT_FAILED");
     }
 }

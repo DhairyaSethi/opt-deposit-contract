@@ -2,21 +2,21 @@
 pragma solidity 0.8.25;
 
 contract ZeroHashMerkleTree {
-    address public pointer;
-    address public pointerWithoutStop;
+    address internal immutable _pointer;
+    address internal immutable _pointerWithoutStop;
 
-    constructor(address _pointer, address _pointerWithoutStop) {
-        pointer = _pointer;
-        pointerWithoutStop = _pointerWithoutStop;
+    constructor(address pointer, address pointerWithoutStop) {
+        _pointer = pointer;
+        _pointerWithoutStop = pointerWithoutStop;
 
-        _constructZeroHashesInStorage();
+        _constructZeroHashesAndStore();
     }
 
     // the storage way: eth 2 deposit contract: https://github.com/ethereum/consensus-specs/blob/dev/solidity_deposit_contract/deposit_contract.sol#L72-L78
     uint constant DEPOSIT_CONTRACT_TREE_DEPTH = 32;
     bytes32[DEPOSIT_CONTRACT_TREE_DEPTH] zeroHashes;
 
-    function _constructZeroHashesInStorage() internal {
+    function _constructZeroHashesAndStore() internal {
         // Compute hashes in empty sparse Merkle tree
         for (
             uint height = 0;
@@ -32,8 +32,9 @@ contract ZeroHashMerkleTree {
     }
 
     function zerosFromPointer(uint i) external view returns (bytes32 ret) {
+        address pointer = _pointer;
         assembly {
-            extcodecopy(sload(pointer.slot), 0, add(mul(i, 32), 1), 32)
+            extcodecopy(pointer, 0, add(mul(i, 32), 1), 32)
             ret := mload(0)
             // mstore(0, 0) // zero out scratch space safely if used internally
         }
@@ -41,10 +42,11 @@ contract ZeroHashMerkleTree {
     function zerosFromPointerWithoutTheExtraStop(
         uint i
     ) public view returns (bytes32 ret) {
+        address pointerWithoutStop = _pointerWithoutStop;
         assembly {
-            extcodecopy(sload(pointerWithoutStop.slot), 0, mul(i, 32), 32)
+            extcodecopy(pointerWithoutStop, 0, mul(i, 32), 32)
             ret := mload(0)
-            // mstore(0, 0) // zero out scratch space safely if used internally
+            // mstore(0, 0) // zero out scratch space safely (or use & release fmp) if used internally
         }
     }
 

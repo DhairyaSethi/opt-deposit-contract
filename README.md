@@ -6,10 +6,10 @@
 
 | Function Name                       | min  | avg  | median | max  | # calls |
 | ----------------------------------- | ---- | ---- | ------ | ---- | ------- |
-| zerosFromPointerWithoutTheExtraStop | 507  | 647  | 507    | 507  | 32      |
-| zerosFromPointer                    | 534  | 534  | 534    | 534  | 32      |
-| zerosFromStorage                    | 2478 | 2478 | 2478   | 2478 | 32      |
-| zerosFromSwitch                     | 328  | 684  | 684    | 1041 | 32      |
+| zerosFromPointerWithoutTheExtraStop | 392  | 470  | 392    | 2892 | 32      |
+| zerosFromPointer                    | 464  | 464  | 464    | 464  | 32      |
+| zerosFromSwitch                     | 305  | 661  | 661    | 1018 | 32      |
+| zerosFromStorage                    | 2500 | 2500 | 2500   | 2500 | 32      |
 
 ### Deployment
 
