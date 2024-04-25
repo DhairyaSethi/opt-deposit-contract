@@ -39,7 +39,7 @@ contract ZeroHashMerkleTree {
             // mstore(0, 0) // zero out scratch space safely if used internally
         }
     }
-    function zerosFromPointerWithoutTheExtraStop(
+    function zerosFromPointerWithoutStop(
         uint i
     ) public view returns (bytes32 ret) {
         address pointerWithoutStop = _pointerWithoutStop;

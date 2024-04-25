@@ -19,7 +19,7 @@ contract ZeroHashMerkleTreeTest is Test {
 
         bytes memory data = abi.encodePacked(zeroHashes);
         pointer = SSTORE2.write(data);
-        pointerWithoutStop = write(data);
+        pointerWithoutStop = writeWithoutStop(data);
 
         base = new ZeroHashMerkleTree(pointer, pointerWithoutStop);
     }
@@ -37,7 +37,7 @@ contract ZeroHashMerkleTreeTest is Test {
             sstore2ReadSum += gas - gasleft();
 
             gas = gasleft();
-            bytes32 readPointer = base.zerosFromPointerWithoutTheExtraStop(i);
+            bytes32 readPointer = base.zerosFromPointerWithoutStop(i);
             readPointerSum += gas - gasleft();
             assertEq(readPointer, value);
             assertEq(base.zerosFromPointer(i), value);
@@ -73,7 +73,9 @@ contract ZeroHashMerkleTreeTest is Test {
     // taken from solmate: https://github.com/transmissions11/solmate/blob/main/src/utils/SSTORE2.sol
     // does not pad the initial 00 (STOP) opcode for keccack hashed merkle trees where
     // the first zero root is bytes32(0) which naturally lends the initial STOP opcode
-    function write(bytes memory data) internal returns (address pointer_) {
+    function writeWithoutStop(
+        bytes memory data
+    ) internal returns (address pointer_) {
         bytes memory runtimeCode = abi.encodePacked(data);
         bytes memory creationCode = abi.encodePacked(
             hex"60_0B_59_81_38_03_80_92_59_39_F3",
