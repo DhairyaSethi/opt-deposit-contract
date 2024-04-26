@@ -27,16 +27,17 @@ contract ZeroHashMerkleTree {
                 abi.encodePacked(zeroHashes[height], zeroHashes[height])
             );
     }
-    function zerosFromStorage(uint i) public view returns (bytes32 ret) {
+    function zerosFromStorage(uint i) external view returns (bytes32 ret) {
         ret = zeroHashes[i];
     }
 
     function zerosFromPointer(uint i) external view returns (bytes32 ret) {
         address pointer = _pointer;
         assembly {
-            extcodecopy(pointer, 0, add(mul(i, 32), 1), 32)
-            ret := mload(0)
-            // mstore(0, 0) // zero out scratch space safely if used internally
+            let fmp := mload(64)
+            extcodecopy(pointer, fmp, add(mul(i, 32), 1), 32) // add 1 to skip the extra 00 (stop)
+            ret := mload(fmp)
+            mstore(fmp, 0) // imp if used internally
         }
     }
     function zerosFromPointerWithoutStop(
@@ -44,9 +45,10 @@ contract ZeroHashMerkleTree {
     ) public view returns (bytes32 ret) {
         address pointerWithoutStop = _pointerWithoutStop;
         assembly {
-            extcodecopy(pointerWithoutStop, 0, mul(i, 32), 32)
-            ret := mload(0)
-            // mstore(0, 0) // zero out scratch space safely (or use & release fmp) if used internally
+            let fmp := mload(64)
+            extcodecopy(pointerWithoutStop, fmp, mul(i, 32), 32)
+            ret := mload(fmp)
+            mstore(fmp, 0)
         }
     }
 
@@ -197,6 +199,6 @@ contract ZeroHashMerkleTree {
     }
 
     function _zeros(uint i) internal view returns (bytes32 ret) {
-        ret = zerosFromStorage(i);
+        ret = zeroHashes[i];
     }
 }

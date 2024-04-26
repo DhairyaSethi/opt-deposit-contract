@@ -22,6 +22,9 @@ contract ZeroHashMerkleTreeTest is Test {
         pointerWithoutStop = writeWithoutStop(data);
 
         base = new ZeroHashMerkleTree(pointer, pointerWithoutStop);
+
+        assertEq(pointer.code, abi.encodePacked(hex"00", data));
+        assertEq(pointerWithoutStop.code, data);
     }
 
     function testGasBenchmarks() public view {
