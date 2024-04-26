@@ -153,7 +153,7 @@ contract ZeroHashMerkleTree {
         else revert("Index out of bounds");
     }
 
-    function concactZeroHashes() external view returns (bytes memory ret) {
+    function concatZeroHashes() external view returns (bytes memory ret) {
         ret = abi.encodePacked(zeroHashes);
     }
 
