@@ -1,3 +1,5 @@
+Rationale: https://x.com/imderl/status/1783947810636992956
+
 ### Benchmark
 
 ```bash
